@@ -31,3 +31,4 @@ fpdf2>=2.7.9
 redis>=5.0.1
 celery>=5.3.6
 stripe>=8.4.0
+pysqlite3-binary>=0.5.2.post3
