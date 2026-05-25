@@ -1,0 +1,105 @@
+================================================================================
+                       TAXAI - ARCHITECTURAL OVERVIEW & WORKFLOWS
+================================================================================
+
+TaxAI is a high-performance, full-stack AI-powered tax advisor specifically built 
+to help taxpayers navigate the Indian Income Tax System (FY 2024-25). It bridges 
+the gap between deterministic financial rules and conversational intelligence.
+
+--------------------------------------------------------------------------------
+1. CORE TECH STACK & TOOLS USED
+--------------------------------------------------------------------------------
+
+- FRONTEND: Next.js 14 (React), TailwindCSS, Zustand (State Management), Framer Motion.
+- BACKEND: FastAPI (Python), SQLAlchemy (Async ORM), Uvicorn.
+- AUTHENTICATION: Clerk Auth (Frontend) with custom Backend JWT validation & DB sync.
+- DATABASE: Neon Cloud PostgreSQL (Relational DB for users, calculations, sessions).
+- VECTOR DATABASE: ChromaDB (Local vector store for tax laws and guidelines).
+- AI ENGINE: 
+  - Google Gemini API (gemini-2.5-flash for primary conversation & reasoning)
+  - Google Gemini API (gemini-2.0-flash-lite for lightweight JSON/title extraction)
+  - Google Gemini Embeddings (gemini-embedding-001 for vector search)
+- DOCUMENT PROCESSING: PyMuPDF (PDF text extraction), PyTesseract (OCR scanner), Pillow.
+- REPORT GENERATION: ReportLab / FPDF2 (Asynchronous PDF Tax Report builder).
+- CACHING & BACKGROUND TASKS: Redis & Celery / FastAPI BackgroundTasks.
+
+
+--------------------------------------------------------------------------------
+2. KEY WORKFLOWS STEP-BY-STEP
+--------------------------------------------------------------------------------
+
+WORKFLOW A: USER AUTHENTICATION & PROFILE SYNCHRONIZATION
+  Purpose: Seamlessly log in users and sync profiles instantly without slowing page loads.
+  Steps:
+  1. User signs up/in using Clerk Auth UI widgets on the Next.js frontend.
+  2. The Next.js frontend catches the token inside `AppShell.tsx` and issues a POST to 
+     `/api/v1/auth/clerk/sync`.
+  3. The FastAPI backend decodes the secure JWT, checks if the user exists in Neon DB.
+  4. If new, it creates a custom User and UserPreferences profile (e.g., PAN, financial year).
+  5. Optimization: A stateful ref guard ensures this sync runs exactly once per session, 
+     preventing redundant API requests.
+
+WORKFLOW B: THE DETERMINISTIC TAX CALCULATION ENGINE
+  Purpose: Calculate Indian Income tax with absolute, cent-percent mathematical accuracy.
+  Design Philosophy: NEVER let an LLM do financial math. The LLM is prone to hallucination.
+  Steps:
+  1. User fills out details (Basic, HRA, rent paid, 80C/80D investments, city type) 
+     in `/calculator` page.
+  2. Next.js calls POST `/api/v1/tax/calculate`.
+  3. The backend executes `IndianTaxCalculator` (`tax_calculator.py`) in pure Python:
+     - Calculates HRA Exemption: Min of (Actual HRA, 40%/50% Basic, Rent Paid - 10% Basic).
+     - Standard Deduction: ₹50,000 (Old regime), ₹75,000 (New regime, post-Budget 2024).
+     - Applies Slabs: Iterates through progressive brackets (NIL, 5%, 10%, 15%, 20%, 30%).
+     - Applies Rebates: 87A rebate of up to ₹12,500 (Old, <=5L) or ₹25,000 (New, <=7L).
+     - Calculates Surcharge & 4% Health/Education Cess.
+  4. The engine compares results, recommends the cheaper regime, details savings, 
+     and produces actionable, targeted recommendations.
+  5. The calculation is optionally saved to Neon DB (`SavedCalculation` model) for dashboard stats.
+
+WORKFLOW C: RETRIEVAL-AUGMENTED GENERATION (RAG) CHAT FLOW
+  Purpose: Answer complex tax queries using verified Indian tax laws, eliminating LLM hallucinations.
+  Steps:
+  1. The RAG knowledge base is seeded at backend startup inside `rag_service.py`:
+     - Text chunks (slabs, deductions, rules) are chunked via LangChain's RecursiveTextSplitter.
+     - Vectors are created via `models/gemini-embedding-001` and saved locally in ChromaDB HNSW space.
+  2. The user submits a question (e.g., "How much standard deduction do I get in new regime?").
+  3. Before calling the LLM, the backend invokes `embed_query(query)`.
+  4. ChromaDB searches and retrieves the top 3 most relevant tax code segments matching that vector.
+  5. The retrieved chunks are structured into a secure prompt wrapper:
+     "Based on the following relevant tax information: [RAG Context] ... Answer user question: [User Query]"
+  6. This enriched context prompt is passed to `gemini-2.5-flash` with history context.
+  7. The user receives highly accurate, grounded advice with real references.
+
+WORKFLOW D: DOCUMENT EXTRACTION & OCR PIPELINE
+  Purpose: Automatically extract salary, tax, and PAN information from scanned documents.
+  Steps:
+  1. The user drags a PDF or image (Form 16 or Salary Slip) into `/upload`.
+  2. The backend extracts text using PyMuPDF (PDFs) or pytesseract OCR (images/scans).
+  3. The raw extracted text is passed to `gemini-2.0-flash-lite` with a strict JSON format prompt.
+  4. The LLM parses, cleans, and extracts key details (Gross Income, HRA, PAN, Tax Paid, Deductions).
+  5. The JSON structure is returned to the frontend, allowing the user to import it instantly into the calculator.
+  6. The extracted text is also indexed into ChromaDB under that specific user ID for contextual chat queries.
+
+WORKFLOW E: COMPREHENSIVE PDF REPORT GENERATION
+  Purpose: Generate professional PDF financial breakdowns ready for download.
+  Steps:
+  1. User clicks "Generate Report" on a completed calculation.
+  2. FastAPI fires a `BackgroundTasks` runner to avoid blocking the main server thread.
+  3. `pdf_processor` uses ReportLab to draw a beautifully formatted tabular PDF breakdown.
+  4. Once saved to disk, the database `TaxReport` is updated to `is_ready = True`.
+  5. Next.js receives a download link, prompting the user with a customized PDF download.
+
+WORKFLOW F: PERSISTENT MULTI-THEME TOGGLING (DARK / LIGHT MODE)
+  Purpose: Wow the user visually while ensuring high readability.
+  Steps:
+  1. Zustand `UIStore` holds the user theme state and persists it to `localStorage`.
+  2. A React `ThemeProvider` watches the store and dynamically appends/removes 
+     the `.light` or `.dark` class on the root `<html>` element.
+  3. Tailwind base styles read the HSL variable map under the specific class block (inside `globals.css`).
+  4. Glassmorphism cards adapt:
+     - Dark Mode: Soft semi-transparent white borders on near-black background.
+     - Light Mode: Subtle dark transparent dividers on paper-white background.
+  5. Custom native inputs (e.g., selects) are configured with `color-scheme: dark/light` to 
+     guarantee high contrast option dropdown text on all operating systems.
+
+================================================================================

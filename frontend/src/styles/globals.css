@@ -1,0 +1,289 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 173 71% 40%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 217 33% 14%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 13%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 173 71% 40%;
+    --accent-foreground: 222 47% 6%;
+    --destructive: 0 63% 55%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 14%;
+    --input: 217 33% 14%;
+    --ring: 173 71% 40%;
+    --radius: 0.75rem;
+    --font-geist-sans: 'DM Sans', system-ui, sans-serif;
+    --font-geist-mono: 'DM Mono', monospace;
+    --font-cabinet: 'Syne', system-ui, sans-serif;
+  }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 222 47% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 8%;
+    --primary: 173 71% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 93%;
+    --secondary-foreground: 222 47% 8%;
+    --muted: 210 40% 93%;
+    --muted-foreground: 215 20% 45%;
+    --accent: 173 71% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 87%;
+    --input: 214 32% 87%;
+    --ring: 173 71% 35%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  html { scroll-behavior: smooth; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-white/10 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-white/20; }
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #14b8a6 0%, #5eead4 50%, #a7f3d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fde68a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shimmer skeleton */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Glow effects */
+.glow-teal {
+  box-shadow: 0 0 30px rgba(20,184,166,0.15), 0 0 60px rgba(20,184,166,0.08);
+}
+
+.glow-teal-strong {
+  box-shadow: 0 0 40px rgba(20,184,166,0.25), 0 0 80px rgba(20,184,166,0.12);
+}
+
+/* Chat message styles */
+.chat-message-user {
+  background: linear-gradient(135deg, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.1) 100%);
+  border: 1px solid rgba(20,184,166,0.2);
+}
+
+.chat-message-ai {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Prose styles for markdown in chat */
+.prose-chat {
+  @apply text-foreground;
+}
+.prose-chat h1, .prose-chat h2, .prose-chat h3 { @apply font-semibold text-foreground mt-4 mb-2; }
+.prose-chat h1 { @apply text-xl; }
+.prose-chat h2 { @apply text-lg; }
+.prose-chat h3 { @apply text-base; }
+.prose-chat p { @apply mb-3 leading-relaxed; }
+.prose-chat ul { @apply list-none space-y-1 mb-3; }
+.prose-chat ul li::before { content: "→ "; @apply text-primary; }
+.prose-chat ol { @apply list-decimal list-inside space-y-1 mb-3; }
+.prose-chat strong { @apply font-semibold text-primary; }
+.prose-chat code { @apply bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-brand-300; }
+.prose-chat pre { @apply bg-black/30 rounded-lg p-4 my-3 overflow-x-auto; }
+.prose-chat blockquote { @apply border-l-2 border-primary/50 pl-4 italic text-muted-foreground; }
+.prose-chat table { @apply w-full border-collapse my-3; }
+.prose-chat th { @apply bg-white/10 px-3 py-2 text-left font-semibold text-sm border border-white/10; }
+.prose-chat td { @apply px-3 py-2 text-sm border border-white/10; }
+
+/* Page transitions */
+.page-enter { animation: fadeIn 0.3s ease-out, slideUp 0.3s ease-out; }
+
+/* Noise texture overlay */
+.noise::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.3;
+}
+
+/* Native select dark styling - fixes invisible option text */
+select {
+  color-scheme: dark;
+}
+select option {
+  background-color: hsl(222, 47%, 9%);
+  color: hsl(210, 40%, 96%);
+}
+
+/* Keyframe animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(8px); }
+  to { transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+
+/* Light mode glass card overrides */
+.light .glass {
+  background: rgba(0,0,0,0.025);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.light .glass-strong {
+  background: rgba(0,0,0,0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.09);
+}
+.light .chat-message-ai {
+  background: rgba(0,0,0,0.035);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.light .chat-message-user {
+  background: hsl(173 71% 35% / 0.12);
+  border: 1px solid hsl(173 71% 35% / 0.2);
+}
+.light ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+.light ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+.light select { color-scheme: light; }
+.light select option {
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(222, 47%, 8%);
+}
+
+/* Light mode structural elements & escaped Tailwind override adapters */
+.light .text-white:not(button):not(.bg-brand-500):not(.bg-brand-400):not(a.bg-brand-500):not(button *):not(.bg-brand-500 *):not(.bg-brand-400 *):not(.glow-teal *) {
+  color: hsl(var(--foreground)) !important;
+}
+.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+.light .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+.light .bg-white\/15 {
+  background-color: rgba(0, 0, 0, 0.09) !important;
+}
+.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+.light .bg-white\/80 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+.light .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+.light .bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+.light .bg-white\/\[0\.01\] {
+  background-color: rgba(0, 0, 0, 0.015) !important;
+}
+.light .bg-white\/\[0\.02\] {
+  background-color: rgba(0, 0, 0, 0.025) !important;
+}
+.light .bg-white\/\[0\.06\] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Light mode markdown overrides */
+.light .prose-chat code {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: hsl(var(--primary));
+}
+.light .prose-chat th {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.light .prose-chat td {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.light .prose-chat strong {
+  color: hsl(var(--primary));
+}
+.light .prose-chat blockquote {
+  border-color: hsl(var(--primary) / 0.5);
+  color: hsl(var(--muted-foreground));
+}
+
+
+/* Disable native HTML5 numeric input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+

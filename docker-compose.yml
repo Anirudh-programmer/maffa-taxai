@@ -1,0 +1,40 @@
+services:
+  # Redis (for caching/rate limiting)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+
+  # FastAPI Backend - uses Neon cloud DB
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://neondb_owner:npg_3FCVczr2Zmft@ep-little-cell-aq7mo22z-pooler.c-8.us-east-1.aws.neon.tech/neondb?ssl=true
+      - GEMINI_API_KEY=AIzaSyAqopMWrgEHAJ9SFU8DlqyrOOzyoj5pl2s
+      - GEMINI_MODEL=models/gemini-2.5-flash
+      - GEMINI_FLASH_MODEL=models/gemini-2.0-flash-lite
+      - SECRET_KEY=taxai-super-secret-key-2024-production
+      - ENVIRONMENT=development
+      - ALLOWED_ORIGINS=http://localhost:3000
+      - REDIS_URL=redis://redis:6379
+      - CLERK_SECRET_KEY=sk_test_f2qCyqjgeDiIM0tZfl66K63iLtzVifJaCps5BPkmCK
+      - CLERK_PUBLISHABLE_KEY=pk_test_aW1tZW5zZS1wdWctMTEuY2xlcmsuYWNjb3VudHMuZGV2JA
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+      - chroma_data:/app/chroma_data
+    depends_on:
+      - redis
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  redisdata:
+  uploads_data:
+  chroma_data:
