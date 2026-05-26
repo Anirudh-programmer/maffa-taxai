@@ -240,6 +240,7 @@ User Query: {user_message}"""
                         pass
             except Exception as stream_err:
                 logger.error("Error in sync stream generation thread", error=str(stream_err))
+                q.put(stream_err)
             finally:
                 q.put(None)  # Sentinel to signify completion
 
@@ -253,11 +254,13 @@ User Query: {user_message}"""
                 chunk = await asyncio.to_thread(q.get)
                 if chunk is None:
                     break
+                if isinstance(chunk, Exception):
+                    raise chunk
                 yield chunk
                 await asyncio.sleep(0.01)  # Micro-sleep to give other event handlers breathing room
         except Exception as e:
             logger.error("Gemini async streaming loop error", error=str(e))
-            yield f"\n\n[Error: {str(e)}]"
+            raise e
 
     async def analyze_document(self, text: str, document_type: str) -> Dict[str, Any]:
         """Analyze a tax document and extract key information."""

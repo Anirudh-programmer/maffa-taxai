@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = ""
 
     # AI
-    GEMINI_API_KEY: str = "AIzaSyAqopMWrgEHAJ9SFU8DlqyrOOzyoj5pl2s"
+    GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "models/gemini-2.5-flash"
     GEMINI_FLASH_MODEL: str = "models/gemini-2.0-flash-lite"
 

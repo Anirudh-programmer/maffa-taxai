@@ -148,8 +148,19 @@ export default function UploadPage() {
   const { documents, setDocuments } = useUIStore()
   const [uploading, setUploading] = useState<Array<{ name: string; progress: number }>>([])
   const [selectedType, setSelectedType] = useState('other')
-  const [loadingDocs, setLoadingDocs] = useState(documents.length === 0)
+  
+  // Safely fallback to an empty array to prevent TypeError
+  const safeDocs = Array.isArray(documents) ? documents : []
+  
+  const [loadingDocs, setLoadingDocs] = useState(!Array.isArray(documents) || documents.length === 0)
   const { user } = useAuthStore()
+
+  // Self-heal the Zustand store if localStore hydration brought a corrupt non-array value
+  useEffect(() => {
+    if (!Array.isArray(documents)) {
+      setDocuments([])
+    }
+  }, [documents, setDocuments])
 
   useEffect(() => {
     if (!user) return
@@ -165,15 +176,21 @@ export default function UploadPage() {
       setUploading(prev => [...prev, upload])
       try {
         const doc = await documentsApi.upload(file, selectedType)
-        setDocuments(prev => [doc, ...prev])
+        setDocuments(prev => [doc, ...(Array.isArray(prev) ? prev : [])])
         toast.success(`${file.name} uploaded and analyzing!`)
       } catch (e: any) {
-        toast.error(e?.response?.data?.detail || `Failed to upload ${file.name}`)
+        const errorDetail = e?.response?.data?.detail;
+        const errorMessage = typeof errorDetail === 'string'
+          ? errorDetail
+          : (Array.isArray(errorDetail)
+              ? errorDetail.map(err => err.msg || JSON.stringify(err)).join(', ')
+              : (e?.response?.data?.message || e?.message || `Failed to upload ${file.name}`));
+        toast.error(errorMessage);
       } finally {
         setUploading(prev => prev.filter(u => u.name !== file.name))
       }
     }
-  }, [selectedType])
+  }, [selectedType, setDocuments])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -184,7 +201,7 @@ export default function UploadPage() {
   const handleDelete = async (id: string) => {
     try {
       await documentsApi.delete(id)
-      setDocuments(prev => prev.filter(d => d.id !== id))
+      setDocuments(prev => (Array.isArray(prev) ? prev : []).filter(d => d.id !== id))
       toast.success('Document deleted')
     } catch {
       toast.error('Failed to delete')
@@ -273,9 +290,9 @@ export default function UploadPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">
-              {loadingDocs ? 'Documents' : `${documents.length} Document${documents.length !== 1 ? 's' : ''}`}
+              {loadingDocs ? 'Documents' : `${safeDocs.length} Document${safeDocs.length !== 1 ? 's' : ''}`}
             </h2>
-            {documents.length > 0 && (
+            {safeDocs.length > 0 && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <AlertCircle className="w-3.5 h-3.5" />
                 Indexed for AI chat context
@@ -289,7 +306,7 @@ export default function UploadPage() {
                 <div key={i} className="skeleton h-20 rounded-xl" />
               ))}
             </div>
-          ) : documents.length === 0 ? (
+          ) : safeDocs.length === 0 ? (
             <div className="glass rounded-2xl p-12 text-center">
               <FileText className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground text-sm">No documents uploaded yet</p>
@@ -297,7 +314,7 @@ export default function UploadPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {documents.map((doc) => (
+              {safeDocs.map((doc) => (
                 <DocumentCard key={doc.id} doc={doc} onDelete={handleDelete} />
               ))}
             </div>

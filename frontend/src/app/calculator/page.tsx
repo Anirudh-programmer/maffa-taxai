@@ -117,7 +117,13 @@ export default function CalculatorPage() {
       const res = await taxApi.calculate(input)
       setResult(res)
     } catch (e: any) {
-      toast.error(e?.response?.data?.detail || 'Calculation failed')
+      const errorDetail = e?.response?.data?.detail;
+      const errorMessage = typeof errorDetail === 'string'
+        ? errorDetail
+        : (Array.isArray(errorDetail)
+            ? errorDetail.map(err => err.msg || JSON.stringify(err)).join(', ')
+            : (e?.response?.data?.message || e?.message || 'Calculation failed'));
+      toast.error(errorMessage);
     } finally {
       setLoading(false)
     }
