@@ -84,7 +84,7 @@ cp frontend/.env.example frontend/.env.local
 
 **Backend `.env` keys:**
 ```env
-GEMINI_API_KEY=AIzaSyAqopMWrgEHAJ9SFU8DlqyrOOzyoj5pl2s
+GEMINI_API_KEY=your-gemini-api-key-here
 DATABASE_URL=postgresql+asyncpg://neondb_owner:...@...neon.tech/neondb?ssl=require
 SECRET_KEY=your-random-secret-key-min-32-chars
 CLERK_SECRET_KEY=sk_test_...
