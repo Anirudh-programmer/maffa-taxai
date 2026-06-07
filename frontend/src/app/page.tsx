@@ -319,8 +319,8 @@ export default function LandingPage() {
           </div>
           <p className="text-sm text-muted-foreground">© 2026 Maffa TaxAI. For educational purposes. Consult a CA for complex tax matters.</p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           </div>
         </div>
       </footer>

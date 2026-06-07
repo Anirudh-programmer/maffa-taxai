@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         if (!clerkToken) return
         
         // Pass email and name from Clerk to backend
-        const email = clerkUser?.primaryEmailAddress?.emailAddress || undefined
+        const email = clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses[0]?.emailAddress || undefined
         const fullName = clerkUser?.fullName || undefined
         
         const response = await authApi.syncClerk(clerkToken, email, fullName)
