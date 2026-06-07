@@ -10,8 +10,9 @@ import { authApi, setAuthToken, getAuthToken } from '@/lib/api'
 let globalSyncingInProgress = false
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { isSignedIn, isLoaded, getToken } = useAuth()
-  const { user: clerkUser } = useUser()
+  const { isSignedIn, isLoaded: isAuthLoaded, getToken } = useAuth()
+  const { isLoaded: isUserLoaded, user: clerkUser } = useUser()
+  const isLoaded = isAuthLoaded && isUserLoaded
   const router = useRouter()
   const { setUser, setToken, user } = useAuthStore()
   
