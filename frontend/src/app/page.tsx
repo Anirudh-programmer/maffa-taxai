@@ -1,9 +1,10 @@
 'use client'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
   ArrowRight, Bot, Calculator, FileText, Shield, TrendingUp,
-  Zap, ChevronRight, CheckCircle2, Star, BarChart3, Upload,
+  Zap, ChevronRight, CheckCircle2, Star, BarChart3, Upload, X
 } from 'lucide-react'
 
 const features = [
@@ -35,7 +36,110 @@ const faqs = [
   { q: 'Does it support both old and new tax regime?', a: 'Yes! Maffa TaxAI calculates both regimes and tells you exactly which one saves you more money, with a detailed breakdown.' },
 ]
 
+const termsPoints = [
+  "Acceptance of Terms: By accessing Maffa TaxAI (the 'Platform'), you agree to comply with and be bound by these Terms of Service. If you do not agree, please do not use the Platform.",
+  "Educational Tool Only: Maffa TaxAI is an AI-driven educational tool. It is not a licensed Chartered Accountant (CA) or certified financial planner.",
+  "No Professional CA Advice: All calculations, recommendations, and AI assistant outputs are for informational and planning purposes only. Always consult a certified CA for official tax filings and legal submissions.",
+  "Accuracy of Calculations: While our core engine runs precise mathematical calculations under both regimes, Maffa TaxAI does not guarantee absolute financial accuracy or correctness under all situations.",
+  "User-Provided Information: You are solely responsible for ensuring that all salary slips, Form 16 documents, and financial data you upload or input are authentic and accurate.",
+  "Data Privacy & Storage: Uploaded files are processed securely. You warrant that you own or have the permission to upload these documents.",
+  "Abuse & Prohibited Activities: You agree not to abuse, scrap, reverse-engineer, or attempt to compromise the Maffa Core optimization systems.",
+  "Limitation of Liability: Under no circumstances shall Maffa TaxAI, its developers, or its affiliates be liable for any penalties, financial losses, or tax discrepancies resulting from your filings.",
+  "Modifications to Service: We reserve the right to alter, pause, or update these terms at any time. Continued use of the platform constitutes acceptance of updated terms."
+]
+
+const privacyPoints = [
+  "Information Collection: We collect account profile information (managed via Clerk), user configurations, and uploaded tax documents (Form 16, salary slips).",
+  "Purpose of Processing: Your data is processed strictly to parse salary slips, run tax simulations, suggest deductions, and power your personalized chat sessions.",
+  "Document Privacy: Uploaded tax documents are parsed securely. We do not sell, distribute, or share your documents with any third-party marketing entities.",
+  "Secure Infrastructure: We host all data on secure servers (Neon database, Vercel edge/serverless) with encrypted SSL connections for all transactions.",
+  "AI Analysis Security: When documents are processed, they are sent via secure API requests to the Google Gemini model. No data is stored or trained by the model.",
+  "Cookies & Session Storage: We use standard authentication and session cookies (via Clerk) to keep you securely signed in across page changes.",
+  "Data Deletion: You have the right to request deletion of your account at any time, which immediately and permanently purges all your chats, documents, and profile.",
+  "Compliance with Legal Demands: We may disclose information if required to do so by law or in good faith belief that such action is necessary to comply with legal processes.",
+  "Retention Policy: We store your documents and calculations only as long as you maintain your account or until you choose to delete them.",
+  "Updates to Policy: We will periodically update this Privacy Policy. Continued use of the site after updates indicates your acknowledgment and agreement."
+]
+
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  title: string
+  points: string[]
+}
+
+function InfoModal({ isOpen, onClose, title, points }: ModalProps) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+          />
+          
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', duration: 0.5 }}
+            className="relative w-full max-w-2xl bg-slate-950/90 border border-brand-500/20 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-2xl z-10 p-6 md:p-8"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+              <h3 className="text-xl md:text-2xl font-bold font-display text-white flex items-center gap-2">
+                <Shield className="w-5 h-5 md:w-6 md:h-6 text-brand-500" />
+                {title}
+              </h3>
+              <button
+                onClick={onClose}
+                className="p-2 text-muted-foreground hover:text-white hover:bg-white/5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Points List */}
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar text-sm md:text-base">
+              {points.map((point, index) => (
+                <div key={index} className="flex gap-4 items-start p-3 bg-white/[0.01] border border-white/[0.02] rounded-xl hover:border-brand-500/20 transition-all duration-300">
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-500/10 text-brand-500 font-bold text-xs shrink-0 mt-0.5">
+                    {index + 1}
+                  </div>
+                  <div className="text-muted-foreground text-left leading-relaxed">
+                    <strong className="text-white block md:inline md:mr-1">
+                      {point.split(':')[0]}:
+                    </strong>
+                    {point.split(':').slice(1).join(':')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-8 pt-4 border-t border-white/5 text-center">
+              <button
+                onClick={onClose}
+                className="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-medium rounded-xl shadow-lg shadow-brand-500/20 transition-all duration-300"
+              >
+                I Understand
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 export default function LandingPage() {
+  const [showPrivacy, setShowPrivacy] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Background effects */}
@@ -319,11 +423,25 @@ export default function LandingPage() {
           </div>
           <p className="text-sm text-muted-foreground">© 2026 Maffa TaxAI. For educational purposes. Consult a CA for complex tax matters.</p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <button onClick={() => setShowPrivacy(true)} className="hover:text-foreground transition-colors bg-transparent border-none cursor-pointer focus:outline-none">Privacy</button>
+            <button onClick={() => setShowTerms(true)} className="hover:text-foreground transition-colors bg-transparent border-none cursor-pointer focus:outline-none">Terms</button>
           </div>
         </div>
       </footer>
+
+      {/* Info Modals */}
+      <InfoModal
+        isOpen={showPrivacy}
+        onClose={() => setShowPrivacy(false)}
+        title="Privacy Policy"
+        points={privacyPoints}
+      />
+      <InfoModal
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
+        title="Terms of Service"
+        points={termsPoints}
+      />
     </div>
   )
 }
