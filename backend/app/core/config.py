@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     ALLOWED_FILE_TYPES: List[str] = ["application/pdf", "image/jpeg", "image/png"]
 
     # CORS
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,https://taxai-beta.vercel.app,https://maffa-taxai.vercel.app"
 
     # Logging
     LOG_LEVEL: str = "INFO"
