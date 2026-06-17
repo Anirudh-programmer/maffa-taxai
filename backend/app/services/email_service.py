@@ -18,6 +18,33 @@ class EmailService:
     @staticmethod
     def _send_smtp_sync(recipient: str, subject: str, html_content: str, text_content: str) -> None:
         """Synchronous helper to execute SMTP delivery in a background thread."""
+        import os
+        import httpx
+
+        # Check if Vercel SMTP Bridge is configured to bypass Render's SMTP block
+        bridge_token = os.environ.get("SMTP_BRIDGE_TOKEN")
+        if bridge_token:
+            vercel_url = os.environ.get("NEXT_PUBLIC_APP_URL") or "https://taxai-beta.vercel.app"
+            bridge_url = f"{vercel_url.rstrip('/')}/api/send-email"
+            try:
+                logger.info("Sending email via Vercel SMTP Bridge...", recipient=recipient)
+                response = httpx.post(
+                    bridge_url,
+                    json={
+                        "token": bridge_token,
+                        "recipient": recipient,
+                        "subject": subject,
+                        "html": html_content,
+                        "text": text_content
+                    },
+                    timeout=15.0
+                )
+                response.raise_for_status()
+                logger.info("Email sent successfully via Vercel SMTP Bridge", recipient=recipient)
+                return
+            except Exception as e:
+                logger.error("Vercel SMTP Bridge failed, falling back to direct SMTP", error=str(e))
+
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = f'"{settings.EMAILS_FROM_NAME}" <{settings.EMAILS_FROM_EMAIL}>'
