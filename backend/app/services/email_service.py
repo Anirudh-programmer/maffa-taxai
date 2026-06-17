@@ -67,6 +67,10 @@ class EmailService:
         Sends a premium, responsive welcome email to the user.
         If SMTP settings are present, dispatches live email. Otherwise, falls back to mock console logs.
         """
+        import os
+        app_url = os.environ.get("NEXT_PUBLIC_APP_URL") or "https://taxai-beta.vercel.app"
+        app_url = app_url.rstrip("/")
+
         name = full_name or email.split("@")[0]
         subject = "Welcome to Maffa TaxAI - Premium AI Tax Advisor!"
 
@@ -85,7 +89,7 @@ class EmailService:
         - Perform deep semantic scans on your Form 16s and salary slips.
         - Uncover proactive, high-yield tax deductions.
 
-        Get started today: http://localhost:3000/dashboard
+        Get started today: {app_url}/dashboard
 
         To your financial optimization,
         The Maffa TaxAI Team
@@ -253,12 +257,12 @@ class EmailService:
                 </div>
 
                 <div style="text-align: center; margin: 35px 0 10px 0;">
-                  <a href="http://localhost:3000/dashboard" class="cta-button">Access Your Tax Dashboard</a>
+                  <a href="{app_url}/dashboard" class="cta-button">Access Your Tax Dashboard</a>
                 </div>
               </div>
               <div class="footer">
                 You are receiving this welcome email because you registered an account on Maffa TaxAI.<br>
-                © 2026 Maffa TaxAI Core. All rights reserved. · <a href="http://localhost:3000">Visit Maffa TaxAI</a>
+                © 2026 Maffa TaxAI Core. All rights reserved. · <a href="{app_url}">Visit Maffa TaxAI</a>
               </div>
             </div>
           </div>
@@ -317,7 +321,7 @@ class EmailService:
 |                                                                               |
 |  GET STARTED TODAY:                                                           |
 |  Log in to your dashboard to run your first simulation or ask Maffa a question!|
-|  URL: http://localhost:3000/dashboard                                         |
+|  URL: {app_url}/dashboard                                         |
 |                                                                               |
 |  To your financial optimization,                                              |
 |  The Maffa TaxAI Team                                                         |
