@@ -66,10 +66,10 @@ app.state.limiter = limiter
 # ─── Middleware ───────────────────────────────────────────────────────────────
 
 # CORS
-allowed_origins = list(set(settings.allowed_origins_list + [
+allowed_origins = [
+    "http://localhost:3000",
     "https://taxai-beta.vercel.app",
-    "https://maffa-taxai.vercel.app"
-]))
+]
 
 app.add_middleware(
     CORSMiddleware,
