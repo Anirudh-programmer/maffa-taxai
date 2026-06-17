@@ -66,9 +66,14 @@ app.state.limiter = limiter
 # ─── Middleware ───────────────────────────────────────────────────────────────
 
 # CORS
+allowed_origins = list(set(settings.allowed_origins_list + [
+    "https://taxai-beta.vercel.app",
+    "https://maffa-taxai.vercel.app"
+]))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins_list,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
