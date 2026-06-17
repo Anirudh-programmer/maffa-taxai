@@ -25,7 +25,7 @@ class EmailService:
         bridge_token = os.environ.get("SMTP_BRIDGE_TOKEN")
         if bridge_token:
             vercel_url = os.environ.get("NEXT_PUBLIC_APP_URL") or "https://taxai-beta.vercel.app"
-            bridge_url = f"{vercel_url.rstrip('/')}/api/send-email"
+            bridge_url = f"{vercel_url.rstrip('/')}/api/public/send-email"
             try:
                 logger.info("Sending email via Vercel SMTP Bridge...", recipient=recipient)
                 response = httpx.post(
