@@ -69,6 +69,7 @@ app.state.limiter = limiter
 allowed_origins = [
     "http://localhost:3000",
     "https://taxai-beta.vercel.app",
+    "https://maffa-taxai.vercel.app",
 ]
 
 app.add_middleware(
